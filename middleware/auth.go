@@ -18,7 +18,7 @@ func SignRequired(authInstance auth.Auth) gin.HandlerFunc {
 		}
 
 		if err != nil {
-			c.JSON(http.StatusOK, serializer.Err(serializer.CodeCredentialInvalid, err.Error(), err))
+			c.JSON(http.StatusOK, serializer.ErrResponse(serializer.CodeInvalidSign, err))
 			c.Abort()
 			return
 		}

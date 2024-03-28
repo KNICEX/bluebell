@@ -5,7 +5,7 @@ import (
 )
 
 type Error struct {
-	Code     int
+	Code     ResCode
 	Msg      string
 	RawError error
 }
@@ -19,36 +19,48 @@ func (e Error) WithError(err error) Error {
 	return e
 }
 
-var (
-	CodeParamErr  = 400
-	CodeServerErr = 500
+type ResCode int
 
-	CodeEmailExist        = 10001
-	CodeEncryptError      = 10002
-	CodeInvalidSign       = 10003
-	CodeSignTimeout       = 10004
-	CodeNoPermission      = 10005
-	CodeEmailSendErr      = 10006
-	CodeCredentialInvalid = 10007
+const (
+	CodeSuccess   ResCode = 0
+	CodeParamErr          = 400
+	CodeServerErr         = 500
 )
 
-var (
-	ServerError = Error{Code: CodeServerErr, Msg: "服务器内部错误"}
+const (
+	CodeEmailExist ResCode = iota + 1000
+	CodeEncryptError
+	CodeInvalidSign
+	CodeSignTimeout
+	CodeNoPermission
+	CodeEmailSendErr
+	CodeCredentialInvalid
+	CodeServerBusy
 )
 
-type ServerInternalError struct {
-	Error
+var codeMsgMap = map[ResCode]string{
+	CodeParamErr:  "请求参数错误",
+	CodeServerErr: "服务器内部错误",
+
+	CodeEmailExist:        "邮箱已被注册",
+	CodeEncryptError:      "加密错误",
+	CodeInvalidSign:       "无效签名",
+	CodeSignTimeout:       "签名超时",
+	CodeNoPermission:      "无权限",
+	CodeEmailSendErr:      "邮件发送失败",
+	CodeCredentialInvalid: "凭证无效",
+	CodeServerBusy:        "服务器繁忙",
 }
 
-type ParamError struct {
-	Error
+func (c ResCode) Msg() string {
+	msg, ok := codeMsgMap[c]
+	if !ok {
+		return codeMsgMap[CodeServerBusy]
+	}
+	return msg
 }
 
-type BizError struct {
-	Error
-}
-
-func NewError(code int, msg string, err error) Error {
+func NewError(code ResCode, msg string, err error) Error {
 	return Error{
 		Code:     code,
 		Msg:      msg,
@@ -56,11 +68,15 @@ func NewError(code int, msg string, err error) Error {
 	}
 }
 
-func ParamErr(msg string, err error) Error {
-	return NewError(CodeParamErr, msg, err)
+func ErrResponse(code ResCode, err error) Response {
+	return Err(code, code.Msg(), err)
 }
 
-func Err(code int, msg string, err error) Response {
+func ErrWithMsg(code ResCode, msg string, err error) Response {
+	return Err(code, msg, err)
+}
+
+func Err(code ResCode, msg string, err error) Response {
 	res := Response{
 		Code: code,
 		Msg:  msg,

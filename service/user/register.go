@@ -48,7 +48,6 @@ func (service *RegisterService) Register() serializer.Response {
 	controller, _ := url.Parse(conf.ServerConf.Prefix + "/user/activate/" + userId)
 
 	activeURL := auth.SignURL(auth.General, base.ResolveReference(controller), time.Minute*10)
-
 	err := email.Send(user.Email, "Activate your account", activeURL.String())
 	if err != nil {
 		logger.L().Error("send email error", err)

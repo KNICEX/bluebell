@@ -16,7 +16,7 @@ func HashID(IDType int) gin.HandlerFunc {
 				c.Next()
 				return
 			}
-			c.JSON(http.StatusOK, serializer.ParamErr("Failed to parse object ID", nil))
+			c.JSON(http.StatusOK, serializer.ErrResponse(serializer.CodeInvalidSign, err))
 			c.Abort()
 			return
 		}

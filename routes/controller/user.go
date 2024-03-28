@@ -13,7 +13,7 @@ func UserRegister(c *gin.Context) {
 		res := service.Register()
 		c.JSON(http.StatusOK, res)
 	} else {
-		c.JSON(http.StatusOK, serializer.Err(serializer.CodeParamErr, err.Error(), err))
+		c.JSON(http.StatusOK, serializer.ErrResponse(serializer.CodeParamErr, err))
 	}
 }
 
@@ -23,6 +23,6 @@ func UserActive(c *gin.Context) {
 		res := service.Active(c)
 		c.JSON(http.StatusOK, res)
 	} else {
-		c.JSON(http.StatusOK, serializer.Err(serializer.CodeParamErr, err.Error(), err))
+		c.JSON(http.StatusOK, serializer.ErrResponse(serializer.CodeParamErr, err))
 	}
 }
